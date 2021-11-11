@@ -1,6 +1,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
+#define usbtimeout 10000
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -26,7 +27,8 @@ MainWindow::~MainWindow()
 
 void MainWindow::ExchangeData(const char* ch)
 {
-    QTime start = QTime::currentTime();
+    //QTime start = QTime::currentTime(); //used for raspi UART read
+    port->flush();
     port->write(ch);
     qDebug() << ch;
 
@@ -37,6 +39,24 @@ void MainWindow::ExchangeData(const char* ch)
      */
 
     port->flush();
+
+    char buffer[50];
+    qDebug() << port->read(buffer, 50);
+    qDebug() << buffer;
+    /*for (;;) {
+        numRead  = port->read(buffer, 50);
+
+        qDebug() << buffer;
+        // Do whatever with the array
+
+        numReadTotal += numRead;
+        if (numRead == 0 && !port->waitForReadyRead())
+            break;
+    }
+        qDebug() << "done";
+        qDebug() << buffer;
+    */
+    /*
     port->waitForBytesWritten();
     buf.clear();
     while(!buf.endsWith("\n"))
@@ -50,7 +70,7 @@ void MainWindow::ExchangeData(const char* ch)
 
        int elapsed = start.msecsTo(QTime::currentTime());
         qDebug() << elapsed;
-        if(elapsed > 10000)
+        if(elapsed > usbtimeout)
         {
             buf.clear();
             port->clear();
@@ -58,6 +78,7 @@ void MainWindow::ExchangeData(const char* ch)
         }
     }
     qDebug() << buf.trimmed();
+    */
 }
 
 void MainWindow::SetPort(QString usbtext)

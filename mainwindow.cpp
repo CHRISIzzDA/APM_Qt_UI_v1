@@ -41,21 +41,10 @@ void MainWindow::ExchangeData(const char* ch)
     port->flush();
 
     char buffer[50];
-    qDebug() << port->read(buffer, 50);
+    port->read(buffer, 50);
     qDebug() << buffer;
-    /*for (;;) {
-        numRead  = port->read(buffer, 50);
 
-        qDebug() << buffer;
-        // Do whatever with the array
 
-        numReadTotal += numRead;
-        if (numRead == 0 && !port->waitForReadyRead())
-            break;
-    }
-        qDebug() << "done";
-        qDebug() << buffer;
-    */
     /*
     port->waitForBytesWritten();
     buf.clear();

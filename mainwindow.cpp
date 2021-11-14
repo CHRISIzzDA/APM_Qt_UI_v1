@@ -38,12 +38,14 @@ void MainWindow::ExchangeData(const char* ch)
      * https://stackoverflow.com/questions/50481765/qt-serialport-data-reception
      */
 
+    /* Test Code
     port->flush();
 
+    port->waitForBytesWritten();
     char buffer[50];
     port->read(buffer, 50);
     qDebug() << buffer;
-
+    */
 
     /*
     port->waitForBytesWritten();

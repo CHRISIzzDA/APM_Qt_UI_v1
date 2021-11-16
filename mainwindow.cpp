@@ -8,13 +8,15 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
 {
     port = new QSerialPort();
-
     ui->setupUi(this);
+
     usbSettings = new UsbSettings();
 
-    connect(usbSettings, &UsbSettings::SendData, this, &MainWindow::ExchangeData);
+    connect(usbSettings, &UsbSettings::SendData, this, &MainWindow::writeData);
     connect(usbSettings, &UsbSettings::SetPort, this, &MainWindow::SetPort);
+    connect(port, &QSerialPort::readyRead, this, &MainWindow::readData);
 }
+
 
 MainWindow::~MainWindow()
 {
@@ -25,69 +27,20 @@ MainWindow::~MainWindow()
     delete port;
 }
 
-void MainWindow::ExchangeData(const char* ch)
+void MainWindow::writeData(const QByteArray &data)
 {
-    //QTime start = QTime::currentTime(); //used for raspi UART read
-    port->flush();
-    port->write(ch);
-    qDebug() << ch;
+    port->write(data);
+    qDebug() << data;
 
-    //recieving answer
-    /*
-     * codeblock via
-     * https://stackoverflow.com/questions/50481765/qt-serialport-data-reception
-     */
-
-    /* Test Code
-    port->flush();
-
-    port->waitForBytesWritten();
-    char buffer[50];
-    port->read(buffer, 50);
-    qDebug() << buffer;
-    */
-
-    /*
-    port->waitForBytesWritten();
-    buf.clear();
-    while(!buf.endsWith("\n"))
-    {
-        if(!port->waitForReadyRead(50))
-            break;
-
-        buf.append(port->readAll());
-        QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
-
-
-       int elapsed = start.msecsTo(QTime::currentTime());
-        qDebug() << elapsed;
-        if(elapsed > usbtimeout)
-        {
-            buf.clear();
-            port->clear();
-            break;
-        }
-    }
-    qDebug() << buf.trimmed();
-    */
 }
 
-void MainWindow::SetPort(QString usbtext)
+void MainWindow::readData()
 {
-    qDebug() << usbtext;
-
-    port->setPortName(usbtext);
-    port->setBaudRate(QSerialPort::Baud9600);
-    port->setDataBits(QSerialPort::Data8);
-    port->setStopBits(QSerialPort::OneStop);
-    port->setParity(QSerialPort::NoParity);
-    port->setFlowControl(QSerialPort::NoFlowControl);
-
-    port->open(QIODevice::ReadWrite);
-
-    qDebug() << "Port Set to " + usbtext;
-
+    const QByteArray data = port->readAll();
+    emit recievedData(data);
+    qDebug() << data;
 }
+
 
 void MainWindow::on_pb_settings_clicked()
 {

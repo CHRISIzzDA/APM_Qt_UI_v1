@@ -6,9 +6,9 @@ UsbSettings::UsbSettings(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::UsbSettings)
 {
-    ui->setupUi(this);
-    startTimer(1000);
 
+    ui->setupUi(this);
+    startTimer(1000);    
 }
 
 
@@ -21,6 +21,11 @@ QSerialPortInfo UsbSettings::SelectedPort()
 {
 
     return serialPorts.at(ui->comboBox->currentIndex());
+}
+
+void UsbSettings::set_pte_usbdata(const QByteArray &data)
+{
+
 }
 
 void UsbSettings::timerEvent(QTimerEvent *evt)

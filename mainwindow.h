@@ -22,7 +22,9 @@ public:
 
 
 private slots:
-    void ExchangeData(const char* ch);
+    void writeData(const QByteArray &data);
+
+    void readData();
 
     void SetPort(QString usbtext);
 
@@ -40,11 +42,13 @@ private slots:
 
     void on_pb_usb_settings_clicked();
 
+signals:
+    void recievedData(const QByteArray &data);
+
 private:
     Ui::MainWindow *ui;
     UsbSettings* usbSettings = Q_NULLPTR;
     QSerialPort* port = Q_NULLPTR;
     QString buf;
-
 };
 #endif // MAINWINDOW_H

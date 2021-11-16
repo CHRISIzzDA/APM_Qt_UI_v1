@@ -20,6 +20,8 @@ public:
     QSerialPortInfo SelectedPort();
 
 private slots:
+    void set_pte_usbdata(const QByteArray &data);
+
     void timerEvent(QTimerEvent* evt);
 
     void on_pb_status_led_on_clicked();

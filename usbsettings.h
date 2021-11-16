@@ -3,6 +3,7 @@
 
 #include <QDialog>
 #include <QSerialPortInfo>
+#include <QTextCursor>
 #include <QTimer>
 
 namespace Ui {
@@ -19,8 +20,10 @@ public:
 
     QSerialPortInfo SelectedPort();
 
-private slots:
+public slots:
     void set_pte_usbdata(const QByteArray &data);
+
+private slots:
 
     void timerEvent(QTimerEvent* evt);
 
@@ -37,6 +40,7 @@ signals:
 private:
     Ui::UsbSettings *ui;
     QList<QSerialPortInfo> serialPorts;
+    QTextCursor c;
 };
 
 

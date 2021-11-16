@@ -15,6 +15,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(usbSettings, &UsbSettings::SendData, this, &MainWindow::writeData);
     connect(usbSettings, &UsbSettings::SetPort, this, &MainWindow::SetPort);
     connect(port, &QSerialPort::readyRead, this, &MainWindow::readData);
+    connect(this, &MainWindow::recievedData, usbSettings, &UsbSettings::set_pte_usbdata);
 }
 
 

@@ -25,7 +25,10 @@ QSerialPortInfo UsbSettings::SelectedPort()
 
 void UsbSettings::set_pte_usbdata(const QByteArray &data)
 {
-
+    ui->pte_usbdata->insertPlainText(data);
+    c = ui->pte_usbdata->textCursor();
+    c.movePosition(QTextCursor::End);
+    ui->pte_usbdata->setTextCursor(c);
 }
 
 void UsbSettings::timerEvent(QTimerEvent *evt)

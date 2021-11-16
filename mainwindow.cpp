@@ -41,7 +41,21 @@ void MainWindow::readData()
     qDebug() << data;
 }
 
+void MainWindow::SetPort(QString usbtext)
+{
+    qDebug() << usbtext;
 
+   port->setPortName(usbtext);
+   port->setBaudRate(QSerialPort::Baud9600);
+   port->setDataBits(QSerialPort::Data8);
+   port->setStopBits(QSerialPort::OneStop);
+   port->setParity(QSerialPort::NoParity);
+   port->setFlowControl(QSerialPort::NoFlowControl);
+
+   port->open(QIODevice::ReadWrite);
+
+   qDebug() << "Port Set to " + usbtext;
+}
 void MainWindow::on_pb_settings_clicked()
 {
     ui->stackedWidget->setCurrentIndex(ui->stackedWidget->currentIndex()+1);

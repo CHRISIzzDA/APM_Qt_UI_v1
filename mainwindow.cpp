@@ -11,6 +11,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->setupUi(this);
 
     usbSettings = new UsbSettings();
+    apmUi = new apmui();
 
     connect(usbSettings, &UsbSettings::SendData, this, &MainWindow::writeData);
     connect(usbSettings, &UsbSettings::SetPort, this, &MainWindow::SetPort);
@@ -26,6 +27,7 @@ MainWindow::~MainWindow()
     delete ui;
     delete usbSettings;
     delete port;
+    delete apmUi;
 }
 
 void MainWindow::writeData(const QByteArray &data)
@@ -99,4 +101,9 @@ void MainWindow::on_pb_usb_settings_clicked()
 
 }
 
+void MainWindow::on_pushButton_clicked()
+{
+    apmUi->setVisible(true);
+    //apmUi->isVisible();
+}
 

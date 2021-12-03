@@ -33,6 +33,7 @@ void UsbSettings::set_pte_usbdata(const QByteArray &data)
 
 void UsbSettings::timerEvent(QTimerEvent *evt)
 {
+
     serialPorts = QSerialPortInfo::availablePorts();
     QString last = ui->comboBox->currentText();
     ui->comboBox->clear();

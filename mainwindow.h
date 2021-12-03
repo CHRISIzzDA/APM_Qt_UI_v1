@@ -7,6 +7,7 @@
 #include <QDebug>
 
 #include "usbsettings.h"
+#include "apmui.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -42,12 +43,15 @@ private slots:
 
     void on_pb_usb_settings_clicked();
 
+    void on_pushButton_clicked();
+
 signals:
     void recievedData(const QByteArray &data);
 
 private:
     Ui::MainWindow *ui;
     UsbSettings* usbSettings = Q_NULLPTR;
+    apmui* apmUi = Q_NULLPTR;
     QSerialPort* port = Q_NULLPTR;
     QString buf;
 };

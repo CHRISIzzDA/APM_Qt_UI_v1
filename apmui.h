@@ -30,11 +30,14 @@ public:
     QTimer *timer2 = new QTimer();
 
 
+
 public slots:
 
 private slots:
 
-    void on_pb_test_clicked();
+    void entereds1();
+
+    void entereds2();
 
 private:
     Ui::apmui *ui;

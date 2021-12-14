@@ -11,6 +11,15 @@ apmui::apmui(QWidget *parent) :
     s2->assignProperty(ui->stateLabel, "text", "State Two");
     //s3->assignProperty(ui->stateLabel, "text", "Pressing...");
 
+    timer->start(1000);
+    timer2->start(1000);
+
+
+    QSignalTransition *timedout = s1->addTransition(timer, &QTimer::timeout, s2);
+
+    QSignalTransition *timeout2 = s2->addTransition(timer2, &QTimer::timeout, s1);
+
+/*
     QEventTransition *enterTransistion = new QEventTransition(ui->pb_test, QEvent::Enter);
     enterTransistion->setTargetState(s2);
     s1->addTransition(enterTransistion);

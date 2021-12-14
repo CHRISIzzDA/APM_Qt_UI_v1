@@ -18,6 +18,8 @@ MainWindow::MainWindow(QWidget *parent)
     connect(port, &QSerialPort::readyRead, this, &MainWindow::readData);
     connect(this, &MainWindow::recievedData, usbSettings, &UsbSettings::set_pte_usbdata);
     connect(this, &MainWindow::startStateMachine, apmUi, &apmui::startup);
+    connect(apmUi, &apmui::SendData, this, &MainWindow::writeData);
+    connect(this, &MainWindow::recievedData, apmUi, &apmui::usbData);
 }
 
 
@@ -34,7 +36,7 @@ MainWindow::~MainWindow()
 void MainWindow::writeData(const QByteArray &data)
 {
     port->write(data);
-    qDebug() << data;
+    //qDebug() << data;
 
 }
 
@@ -42,7 +44,7 @@ void MainWindow::readData()
 {
     const QByteArray data = port->readAll();
     emit recievedData(data);
-    qDebug() << data;
+    //qDebug() << data;
 }
 
 void MainWindow::SetPort(QString usbtext)

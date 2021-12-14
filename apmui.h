@@ -7,6 +7,7 @@
 #include <QStateMachine>
 #include <QEventTransition>
 #include <QFinalState>
+#include <QTextCursor>
 
 
 namespace Ui {
@@ -23,8 +24,8 @@ public:
 
     QStateMachine *machine = new QStateMachine(this);
 
-    QState *s1 = new QState();
-    QState *s2 = new QState();
+    QState *getdata = new QState();
+    QState *pAC = new QState();
 
     QTimer *timer = new QTimer();
     QTimer *timer2 = new QTimer();
@@ -35,16 +36,22 @@ public slots:
 
     void startup();
 
+    void usbData(const QByteArray &data);
+
 private slots:
 
-    void entereds1();
+    void gettingData();
 
-    void entereds2();
+    void prepAndCheck();
 
     void stop();
 
+signals:
+    void SendData(const char* data);
+
 private:
     Ui::apmui *ui;
+    QTextCursor c;
 };
 
 #endif // APMUI_H

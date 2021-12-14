@@ -8,6 +8,8 @@ apmui::apmui(QWidget *parent) :
     ui->setupUi(this);
     connect(s1, &QState::entered, this, &apmui::entereds1);
     connect(s2, &QState::entered, this, &apmui::entereds2);
+    connect(this, &apmui::accepted, this, &apmui::stop);
+    connect(this, &apmui::rejected, this, &apmui::stop);
 
     s1->assignProperty(ui->stateLabel, "text", "One");
 
@@ -21,14 +23,23 @@ apmui::apmui(QWidget *parent) :
     machine->addState(s2);
 
     machine->setInitialState(s1);
-    machine->start();
 
 }
 
 apmui::~apmui()
 {
     delete ui;
+    delete s1;
+    delete s2;
+    delete timer;
+    delete timer2;
+    delete machine;
+}
 
+void apmui::startup()
+{
+    machine->start();
+    qDebug() << "Starting up";
 }
 
 void apmui::entereds1()
@@ -45,3 +56,8 @@ void apmui::entereds2()
     timer2->start(1000);
 }
 
+void apmui::stop()
+{
+    machine->stop();
+    qDebug() << "Stoped";
+}

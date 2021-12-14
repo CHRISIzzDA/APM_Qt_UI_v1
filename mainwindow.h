@@ -48,6 +48,8 @@ private slots:
 signals:
     void recievedData(const QByteArray &data);
 
+    void startStateMachine();
+
 private:
     Ui::MainWindow *ui;
     UsbSettings* usbSettings = Q_NULLPTR;

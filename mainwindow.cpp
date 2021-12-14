@@ -17,6 +17,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(usbSettings, &UsbSettings::SetPort, this, &MainWindow::SetPort);
     connect(port, &QSerialPort::readyRead, this, &MainWindow::readData);
     connect(this, &MainWindow::recievedData, usbSettings, &UsbSettings::set_pte_usbdata);
+    connect(this, &MainWindow::startStateMachine, apmUi, &apmui::startup);
 }
 
 
@@ -104,6 +105,6 @@ void MainWindow::on_pb_usb_settings_clicked()
 void MainWindow::on_pushButton_clicked()
 {
     apmUi->setVisible(true);
-    //apmUi->isVisible();
+    emit startStateMachine();
 }
 

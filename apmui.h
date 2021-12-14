@@ -22,9 +22,9 @@ public:
     ~apmui();
 
     QStateMachine *machine = new QStateMachine(this);
+
     QState *s1 = new QState();
     QState *s2 = new QState();
-    //QState *s3 = new QState();
 
     QTimer *timer = new QTimer();
     QTimer *timer2 = new QTimer();
@@ -33,11 +33,15 @@ public:
 
 public slots:
 
+    void startup();
+
 private slots:
 
     void entereds1();
 
     void entereds2();
+
+    void stop();
 
 private:
     Ui::apmui *ui;

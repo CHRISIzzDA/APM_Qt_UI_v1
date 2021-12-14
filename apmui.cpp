@@ -7,9 +7,9 @@ apmui::apmui(QWidget *parent) :
 {
     ui->setupUi(this);
     startTimer(1000);
-    s1->assignProperty(ui->stateLabel, "text", "Outside");
-    s2->assignProperty(ui->stateLabel, "text", "Inside");
-    s3->assignProperty(ui->stateLabel, "text", "Pressing...");
+    s1->assignProperty(ui->stateLabel, "text", "State One");
+    s2->assignProperty(ui->stateLabel, "text", "State Two");
+    //s3->assignProperty(ui->stateLabel, "text", "Pressing...");
 
     QEventTransition *enterTransistion = new QEventTransition(ui->pb_test, QEvent::Enter);
     enterTransistion->setTargetState(s2);
@@ -26,13 +26,14 @@ apmui::apmui(QWidget *parent) :
     QEventTransition *releaseTransition = new QEventTransition(ui->pb_test, QEvent::MouseButtonRelease);
     releaseTransition->setTargetState(s2);
     s3->addTransition(releaseTransition);
-
+*/
     machine->addState(s1);
     machine->addState(s2);
-    machine->addState(s3);
+    //machine->addState(s3);
 
     machine->setInitialState(s1);
     machine->start();
+
 }
 
 apmui::~apmui()
@@ -45,4 +46,3 @@ void apmui::on_pb_test_clicked()
 {
 
 }
-

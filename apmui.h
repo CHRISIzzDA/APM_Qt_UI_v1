@@ -6,6 +6,7 @@
 #include <QtDebug>
 #include <QStateMachine>
 #include <QEventTransition>
+#include <QFinalState>
 
 
 namespace Ui {
@@ -23,7 +24,10 @@ public:
     QStateMachine *machine = new QStateMachine(this);
     QState *s1 = new QState();
     QState *s2 = new QState();
-    QState *s3 = new QState();
+    //QState *s3 = new QState();
+
+    QTimer *timer = new QTimer();
+    QTimer *timer2 = new QTimer();
 
 
 public slots:

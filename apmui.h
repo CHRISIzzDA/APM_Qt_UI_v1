@@ -9,18 +9,17 @@
 #include <QFinalState>
 #include <QTextCursor>
 
-
 namespace Ui {
-class apmui;
+class APMui;
 }
 
-class apmui : public QDialog
+class APMui : public QDialog
 {
     Q_OBJECT
 
 public:
-    explicit apmui(QWidget *parent = nullptr);
-    ~apmui();
+    explicit APMui(QWidget *parent = nullptr);
+    ~APMui();
 
     QStateMachine *machine = new QStateMachine(this);
 
@@ -29,7 +28,6 @@ public:
 
     QTimer *timer = new QTimer();
     QTimer *timer2 = new QTimer();
-
 
 
 public slots:
@@ -49,8 +47,9 @@ private slots:
 signals:
     void SendData(const char* data);
 
+
 private:
-    Ui::apmui *ui;
+    Ui::APMui *ui;
     QTextCursor c;
 };
 

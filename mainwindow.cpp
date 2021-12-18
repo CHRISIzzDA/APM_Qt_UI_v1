@@ -11,15 +11,15 @@ MainWindow::MainWindow(QWidget *parent)
     ui->setupUi(this);
 
     usbSettings = new UsbSettings();
-    apmUi = new apmui();
+    apmUi = new APMui();
 
     connect(usbSettings, &UsbSettings::SendData, this, &MainWindow::writeData);
     connect(usbSettings, &UsbSettings::SetPort, this, &MainWindow::SetPort);
     connect(port, &QSerialPort::readyRead, this, &MainWindow::readData);
     connect(this, &MainWindow::recievedData, usbSettings, &UsbSettings::set_pte_usbdata);
-    connect(this, &MainWindow::startStateMachine, apmUi, &apmui::startup);
-    connect(apmUi, &apmui::SendData, this, &MainWindow::writeData);
-    connect(this, &MainWindow::recievedData, apmUi, &apmui::usbData);
+    connect(this, &MainWindow::startStateMachine, apmUi, &APMui::startup);
+    connect(apmUi, &APMui::SendData, this, &MainWindow::writeData);
+    connect(this, &MainWindow::recievedData, apmUi, &APMui::usbData);
 }
 
 

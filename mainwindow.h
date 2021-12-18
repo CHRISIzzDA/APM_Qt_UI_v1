@@ -53,7 +53,7 @@ signals:
 private:
     Ui::MainWindow *ui;
     UsbSettings* usbSettings = Q_NULLPTR;
-    apmui* apmUi = Q_NULLPTR;
+    APMui* apmUi = Q_NULLPTR;
     QSerialPort* port = Q_NULLPTR;
     QString buf;
 };

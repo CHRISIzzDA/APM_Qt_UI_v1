@@ -1,24 +1,23 @@
 #include "apmui.h"
 #include "ui_apmui.h"
 
-apmui::apmui(QWidget *parent) :
+APMui::APMui(QWidget *parent) :
     QDialog(parent),
-    ui(new Ui::apmui)
+    ui(new Ui::APMui)
 {
     ui->setupUi(this);
-    connect(getdata, &QState::entered, this, &apmui::gettingData);
-    connect(pAC, &QState::entered, this, &apmui::prepAndCheck);
-    connect(this, &apmui::accepted, this, &apmui::stop);
-    connect(this, &apmui::rejected, this, &apmui::stop);
+
+    connect(getdata, &QState::entered, this, &APMui::gettingData);
+    connect(pAC, &QState::entered, this, &APMui::prepAndCheck);
+    connect(this, &APMui::accepted, this, &APMui::stop);
+    connect(this, &APMui::rejected, this, &APMui::stop);
 
     getdata->assignProperty(ui->stateLabel, "text", "Getting Data");
-
     pAC->assignProperty(ui->stateLabel, "text", "Preparing and Checking");
 
 
-    QSignalTransition *timedout = getdata->addTransition(timer, &QTimer::timeout, pAC);
-    QSignalTransition *timeout2 = pAC->addTransition(timer2, &QTimer::timeout, getdata);
-
+    getdata->addTransition(timer, &QTimer::timeout, pAC);
+    pAC->addTransition(timer2, &QTimer::timeout, getdata);
 
     machine->addState(getdata);
     machine->addState(pAC);
@@ -26,7 +25,7 @@ apmui::apmui(QWidget *parent) :
     machine->setInitialState(getdata);
 }
 
-apmui::~apmui()
+APMui::~APMui()
 {
     delete ui;
     delete getdata;
@@ -36,18 +35,18 @@ apmui::~apmui()
     delete machine;
 }
 
-void apmui::startup()
+void APMui::startup()
 {
     machine->start();
     qDebug() << "Starting up";
 }
 
-void apmui::usbData(const QByteArray &data)
+void APMui::usbData(const QByteArray &data)
 {
     ui->pte_Data->insertPlainText(data);
 }
 
-void apmui::gettingData()
+void APMui::gettingData()
 {
     //Data Query
     qDebug() << "<P:0;T;D;L:0>";   //Set Pumplvl. 0; get Depth Data; get Throughput Data; Set Fan
@@ -57,7 +56,7 @@ void apmui::gettingData()
     timer->start(250);
 }
 
-void apmui::prepAndCheck()
+void APMui::prepAndCheck()
 {
 
     c = ui->pte_Data->textCursor();
@@ -69,7 +68,7 @@ void apmui::prepAndCheck()
     timer2->start(1000);
 }
 
-void apmui::stop()
+void APMui::stop()
 {
     machine->stop();
     qDebug() << "Stoped";

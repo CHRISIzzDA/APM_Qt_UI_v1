@@ -44,6 +44,7 @@ void APMui::startup()
 void APMui::usbData(const QByteArray &data)
 {
     ui->pte_Data->insertPlainText(data);
+    ui->pte_Data->ensureCursorVisible();
 }
 
 void APMui::gettingData()
@@ -51,19 +52,12 @@ void APMui::gettingData()
     //Data Query
     qDebug() << "<P:0;T;D;L:0>";   //Set Pumplvl. 0; get Depth Data; get Throughput Data; Set Fan
     emit SendData("<P:0;T;D;L:0>\n");
-    //Populate Plaintextedit
     timer->setSingleShot(true);
     timer->start(250);
 }
 
 void APMui::prepAndCheck()
 {
-
-    c = ui->pte_Data->textCursor();
-    c.movePosition(QTextCursor::End);
-    ui->pte_Data->setTextCursor(c);
-
-
     timer2->setSingleShot(true);
     timer2->start(1000);
 }

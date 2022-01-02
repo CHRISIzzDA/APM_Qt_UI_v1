@@ -7,7 +7,6 @@
 #include <QDebug>
 
 #include "usbsettings.h"
-#include "apmui.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -20,7 +19,6 @@ class MainWindow : public QMainWindow
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
-
 
 private slots:
     void writeData(const QByteArray &data);
@@ -45,6 +43,8 @@ private slots:
 
     void on_pushButton_clicked();
 
+    void on_btn_StopTest_clicked();
+
 signals:
     void recievedData(const QByteArray &data);
 
@@ -52,9 +52,18 @@ signals:
 
 private:
     Ui::MainWindow *ui;
-    UsbSettings* usbSettings = Q_NULLPTR;
-    APMui* apmUi = Q_NULLPTR;
-    QSerialPort* port = Q_NULLPTR;
-    QString buf;
+
+    UsbSettings* usbSettings = new UsbSettings();
+
+    QStateMachine *machine = new QStateMachine(this);
+    QState *getdata = new QState();
+    QState *pAC = new QState();
+
+    QTimer *timer = new QTimer();
+    QTimer *timer2 = new QTimer();
+
+    enum MainStackedWidget { MSW_HOME, MSW_SETTINGS, MSW_TEST, MSW_FILES };
+    enum TestStackedWidget { TSW_MENU, TSW_RUNNING };
 };
+
 #endif // MAINWINDOW_H

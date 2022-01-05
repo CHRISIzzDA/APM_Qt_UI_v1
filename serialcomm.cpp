@@ -1,84 +1,142 @@
 #include "serialcomm.h"
 
-SerialComm::SerialComm(QObject *parent) : QObject(parent)
-{
-}
-
-SerialComm::~SerialComm()
+SerialCommWorker::SerialCommWorker(QObject* parent) : QObject(parent)
 {
 
 }
 
-
-void SerialComm::StartTest()
+SerialCommWorker::~SerialCommWorker()
 {
-    _port->open(QIODevice::ReadWrite);
-    // file erstellen, header rein
-    Test();
+    delete _port;
 }
 
-void SerialComm::StopTest()
+void SerialCommWorker::Iteration()
 {
-    if (_port->isOpen()) _port->close();
-}
+    qDebug() << "Iteration";
 
-void SerialComm::Test()
-{
-    char* response = NULL;
-    response = (char*) malloc(4 * sizeof(char));
+    QString query =
+            QString::number(H_BYTE(_msgTx.at(_currState).val1)) +
+            QString::number(L_BYTE(_msgTx.at(_currState).val1)) +
+            QString::number(H_BYTE(_msgTx.at(_currState).val2)) +
+            QString::number(L_BYTE(_msgTx.at(_currState).val2));
 
-    _measuringTimer->start();
-    while (true)
+    if (!_port->isOpen())
     {
-        _tickTimer->start();
-        _depthTimer->start();
+        _port->open(QIODevice::ReadWrite);
 
-        QByteArray query = QString::number(_pumpPower.at(_currState)).toLocal8Bit();
-        _port->write(query);
-
-        _port->read(response, 4);
-
-        // TODO: convert to something useful like meters or hamburgers per bald eagles
-        int depth = TO_16_BIT(response[0], response[1]);
-        int flow  = TO_16_BIT(response[2], response[3]);
-
-        // File stuff and data ready
-
-        if (depth <= _depthlimit)
+        if (!_port->isOpen())
         {
-            _errcode = ERR_MIN_DEPTH;
-            break;
+            qDebug() << "failed to open port";
+            _errcode = SerComm::Error::PORT_OPEN_FAIL;
+            emit TestEnded();
+            return;
         }
+    }
 
-        if (_depthfailcount >= 15)
-        {
-            _errcode = ERR_DEPTH_FAIL;
-            break;
-        }
+    _port->write(query.toLocal8Bit().data());
+    _port->read(_msgRx.a, 4);
 
-        if (_depthTimer->elapsed() >= (_samplerate * 60000))
+    // TODO: convert to something useful like meters or hamburgers per bald eagle
+
+    int depth = TO_16_BIT(_msgRx.s.depthH, _msgRx.s.depthL);
+    int flow  = TO_16_BIT(_msgRx.s.flowH, _msgRx.s.flowL);
+
+    // TODO: File stuff and data ready
+
+    qDebug() << depth << " " << flow;
+    return;
+
+    if (depth <= _depthLimit)
+    {
+        _errcode = SerComm::Error::MIN_DEPTH;
+        emit TestEnded();
+        return;
+    }
+
+    if (_depthFailCount >= 15)
+    {
+        _errcode = SerComm::Error::DEPTH_FAIL;
+        emit TestEnded();
+        return;
+    }
+
+    if (_dtTimeout)
+    {
+        if (true) // depth then - depth now >= 5 or something
         {
-            if (true) //depth then - depth now >= 5 or somthing
+            ++_currState;
+
+            if (_currState >= _msgTx.length())
             {
-                ++_currState;
-
-                if (_currState >= _pumpPower.length())
-                {
-                    break;
-                }
-
-                _depthTimer->start();
+                _errcode = SerComm::Error::NONE;
+                emit TestEnded();
+                return;
             }
 
             else if (_currState == 0)
             {
-                ++_depthfailcount;
+                ++_depthFailCount;
             }
         }
 
-        while (_tickTimer->elapsed() < 50);
+        _dtTimeout = false;
     }
+}
 
-    free(response);
-    emit TestDone();
+void SerialCommWorker::DT_Timeout()
+{
+    _dtTimeout = true;
+}
+
+// ---------------------------------------------------------------------------------
+
+SerialComm::SerialComm(QObject* parent) : QObject(parent)
+{
+    _worker->moveToThread(_thread);
+    _worker->Port()->moveToThread(_thread);
+
+    _iterationTimer->setInterval(MEASURE_RATE);
+    _iterationTimer->moveToThread(_thread);
+
+    _depthTimer->setSingleShot(true);
+    _depthTimer->setInterval(MINUTES(15));
+    _depthTimer->moveToThread(_thread);
+
+    _thread->connect(_worker, SIGNAL(TestEnded()), SLOT(quit()));
+
+    _iterationTimer->connect(_thread, SIGNAL(started()), SLOT(start()));
+    _iterationTimer->connect(_thread, SIGNAL(finished()), SLOT(stop()));
+
+    _depthTimer->connect(_thread, SIGNAL(started()), SLOT(start()));
+    _depthTimer->connect(_thread, SIGNAL(finished()), SLOT(stop()));
+
+    _worker->connect(_iterationTimer, SIGNAL(timeout()), SLOT(Iteration()), Qt::DirectConnection);
+    _worker->connect(_depthTimer, SIGNAL(timout()), SLOT(DT_Timeout()), Qt::DirectConnection);
+
+    _worker->Port()->setBaudRate(QSerialPort::Baud9600);
+    _worker->Port()->setDataBits(QSerialPort::Data8);
+    _worker->Port()->setStopBits(QSerialPort::OneStop);
+    _worker->Port()->setParity(QSerialPort::NoParity);
+    _worker->Port()->setFlowControl(QSerialPort::NoFlowControl);
+}
+
+SerialComm::~SerialComm()
+{
+    delete _thread;
+    delete _worker;
+    delete _iterationTimer;
+    delete _depthTimer;
+}
+
+void SerialComm::StartTest(QString portName)
+{
+    _worker->Port()->setPortName(portName);
+    qDebug() << "start";
+    _thread->start();
+}
+
+void SerialComm::StopTest()
+{
+    qDebug() << "stop";
+    _thread->quit();
 }

@@ -6,7 +6,8 @@
 #include <QTimer>
 #include <QDebug>
 
-#include "usbsettings.h"
+#include <usbsettings.h>
+#include <serialcomm.h>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -21,11 +22,8 @@ public:
     ~MainWindow();
 
 private slots:
-    void writeData(const QByteArray &data);
 
-    void readData();
-
-    void SetPort(QString usbtext);
+    void setPort(QString usbtext);
 
     void on_pb_settings_clicked();
 
@@ -54,13 +52,9 @@ private:
     Ui::MainWindow *ui;
 
     UsbSettings* usbSettings = new UsbSettings();
+    SerialComm _serialComm;
 
-    QStateMachine *machine = new QStateMachine(this);
-    QState *getdata = new QState();
-    QState *pAC = new QState();
-
-    QTimer *timer = new QTimer();
-    QTimer *timer2 = new QTimer();
+    QString portname = "COM3";
 
     enum MainStackedWidget { MSW_HOME, MSW_SETTINGS, MSW_TEST, MSW_FILES };
     enum TestStackedWidget { TSW_MENU, TSW_RUNNING };

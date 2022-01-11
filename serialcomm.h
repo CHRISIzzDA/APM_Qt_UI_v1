@@ -14,6 +14,10 @@
 
 #define MEASURE_RATE 1000
 
+// Rate of depth delta comparison
+
+#define DELTA_RATE 3000
+
 // 8-/16-Byte conversion
 
 #define TO_16_BIT(vH, vL) (((vH) << 8) + (vL))
@@ -75,10 +79,13 @@ private:
 
     MsgRx_t _msgRx;
     QList<Pair_16_t> _msgTx  = { {0, 0}, {100, 100}, {500, 500}, {1000, 1000}, {1024, 1024} };
+    QByteArray _msgRx_long;
 
     int _currState = 0;
     int _depthLimit = 0;
     int _depthFailCount = 0;
+    int _depth;
+    int _flow;
 
     bool _dtTimeout;
 

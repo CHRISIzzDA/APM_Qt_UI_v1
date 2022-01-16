@@ -25,6 +25,8 @@ private slots:
 
     void setPort(QString usbtext);
 
+    void DisplayData();
+
     void on_pb_settings_clicked();
 
     void on_pb_back_settings_clicked();
@@ -52,7 +54,7 @@ private:
     Ui::MainWindow *ui;
 
     UsbSettings* usbSettings = new UsbSettings();
-    SerialComm _serialComm;
+    SerialComm* _thread = new SerialComm();
 
     QString portname = "COM3";
 

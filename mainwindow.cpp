@@ -27,11 +27,33 @@ void MainWindow::DisplayData()
 {
     MeasurementData_t* data = _thread->GetData();
     ui->pte_Data->insertPlainText("Current State: " + QString::number(data->state) +
-                                  " | Pumplvl: " + QString::number(data->pumplvl) +
-                                  " | Depth: " + QString::number(data->flow) +
+                                  " | Pumplvl: " + QString::number(data->pumplvl, 'f', 2) + "%" +
+                                  " | Depth: " + QString::number(data->depth, 'f', 2) + "m" +
                                   " | Flow: " + QString::number(data->flow) +
-                                  " | Fanspeed: " + QString::number(data->fanspeed)+
+                                  " | Fanspeed: " + QString::number(data->fanspeed, 'f', 2) + "%" +
                                   "\t\n");
+    ui->pte_Data->ensureCursorVisible();
+
+    switch (QString::number(data->state).toInt()) {
+    case 0:
+        ui->stateLabel->setText("Prepping...");
+        break;
+    case 1:
+        ui->stateLabel->setText("Pumping at lvl.1");
+        break;
+    case 2:
+        ui->stateLabel->setText("Pumping at lvl.2");
+        break;
+    case 3:
+        ui->stateLabel->setText("Pumping at lvl.3");
+        break;
+    case 4:
+        ui->stateLabel->setText("Wait till Full");
+        break;
+    default:
+        ui->stateLabel->setText("No current State");
+        break;
+    }
 }
 
 void MainWindow::on_pb_settings_clicked()
@@ -78,5 +100,6 @@ void MainWindow::on_pushButton_clicked()
 void MainWindow::on_btn_StopTest_clicked()
 {
     ui->sw_Test->setCurrentIndex(MSW_HOME);
+    ui->pte_Data->clear();
     _thread->StopTest();
 }

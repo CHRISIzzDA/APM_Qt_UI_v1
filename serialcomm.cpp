@@ -13,31 +13,6 @@ SerialCommWorker::~SerialCommWorker()
 void SerialCommWorker::Iteration()
 {
     //qDebug() << "Iteration";
-    qDebug() << _currState;
-
-    if (_dtTimeout)
-    {
-        //qDebug() << "dt Timeout";
-        if (true) // depth then - depth now >= 5 or something
-        {
-            _currState++;
-
-            if (_currState >= _msgTx.length())
-            {
-                _errcode = SerComm::Error::NONE;
-                _currState = 0;
-                _port->flush();
-                emit TestEnded();
-
-            }
-        }
-        else if (_currState == 0)
-        {
-            ++_depthFailCount;
-        }
-
-        _dtTimeout = false;
-    }
 
 
     QString query =
@@ -87,40 +62,95 @@ void SerialCommWorker::Iteration()
 
     }
 
+    //qDebug() << _currState;
 
-    qDebug() << "The depth is:" << _depth << "The flow is:" << _flow;
+    if (_dtTimeout)
+    {
+        //qDebug() << "dt Timeout";
+        qDebug() << _depthThen << " | " << _depth;
+        //qDebug() << (_depthThen - _depth);
+
+        if (((_depthThen - _depth) > -17) && ((_depthThen - _depth) < 17)) // 17 is equivelant to ~1m
+        {
+            qDebug() << "Switch";
+            _currState++;
+
+            if (_currState >= _msgTx.length())
+            {
+                _port->flush();
+                _currState = 0;
+                _file.close();
+                qDebug() << "Ende Gelände";
+                emit TestEnded();
+
+            }
+        }
+        else if (_currState == 0)
+        {
+            ++_depthFailCount;
+        }
+        //qDebug() << _depthFailCount;
+
+        //Set new ref. depth
+        _depthThen = _depth;
+
+        _dtTimeout = false;
+    }
+
+
+    //qDebug() << "The depth is:" << _depth << "The flow is:" << _flow;
+
+    // TODO: convert to something usesnful like meters or hamburgers per bald eagle
+    //Done for everything except for Flow
 
     _data.state = _currState;
-    _data.pumplvl = QString::number(_msgTx.at(_currState).pumpPower).toInt();
-    _data.depth = _depth;
-    _data.flow = _flow;
-    _data.fanspeed = QString::number(_msgTx.at(_currState).fanSpeed).toInt();
+    _data.pumplvl = (QString::number(_msgTx.at(_currState).pumpPower).toDouble() * 0.09765625); //PumpPower in %
+    _data.depth = (_depth * 0.05859375); //Depth in meter
+    _data.flow = _flow; //convert this
+    _data.fanspeed = (QString::number(_msgTx.at(_currState).fanSpeed).toDouble() * 0.09765625); //Fanspeed in %
 
     emit DataReady();
 
+    // TODO: correct File stuff.
+    /*
+    QString filename = "test.csv";
+        _file.setFileName(filename);
 
-    // TODO: convert to something usesnful like meters or hamburgers per bald eagle
+        if (!_file.isOpen())
+        {
+            _file.open(QIODevice::ReadWrite);
+            if (!_file.isOpen())
+            {
+                qDebug() << "failed to open File";
+                emit TestEnded();
+                return;
+            }
+        }
 
-    //int depth = TO_16_BIT(_msgRx.s.depthH, _msgRx.s.depthL);
-    //int flow  = TO_16_BIT(_msgRx.s.flowH, _msgRx.s.flowL);
 
-    // TODO: File stuff and data ready
+        QTextStream stream(&_file);
+        stream << _data.state << ',' << _data.pumplvl << ','
+            << _data.depth << ',' << _data.flow << ','
+            << _data.fanspeed << '\n';
+    */
+    // TODO: File stuff
+
 
     //qDebug() << depth << " " << flow;
-    //return;
 
-    if (_depth <= _depthLimit)
+    if (_depth <= _depthLimit && _currState != 0)
     {
         _errcode = SerComm::Error::MIN_DEPTH;
-        //emit TestEnded();
-        //return;
+        //Set to endstate
+        _currState	= 4;
+        qDebug() << "Depth Limit";
     }
 
     if (_depthFailCount >= 15)
     {
         _errcode = SerComm::Error::DEPTH_FAIL;
-        //emit TestEnded();
-        //return;
+        //End Test due to insuffiecent Starting condition
+        emit TestEnded();
     }
 
 
@@ -143,14 +173,13 @@ SerialComm::SerialComm(QObject* parent) : QObject(parent)
     _iterationTimer->setInterval(MEASURE_RATE);
     _iterationTimer->moveToThread(_thread);
 
-    //removed singelshot
+
     _depthTimer->setInterval(DELTA_RATE); //old MINUTES(15)
     _depthTimer->moveToThread(_thread);
 
     connect(_worker, SIGNAL(DataReady()), this, SLOT(SaveCopy()));
 
     connect(_worker, SIGNAL(TestEnded()), _thread, SLOT(quit()));
-    connect(_worker, SIGNAL(DataReady(MeasurementData_t)), this, SLOT(DataBridge(MeasurementData_t)));
 
     connect(_thread, SIGNAL(started()), _iterationTimer, SLOT(start()));
     connect(_thread, SIGNAL(finished()), _iterationTimer, SLOT(stop()));

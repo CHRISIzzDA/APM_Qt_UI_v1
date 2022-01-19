@@ -9,6 +9,10 @@
 #include <QSerialPort>
 #include <QTimer>
 #include <QElapsedTimer>
+#include <QList>
+#include <QStringList>
+#include <QDir>
+#include <QFile>
 
 // measuring rate
 
@@ -25,10 +29,10 @@
 typedef struct
 {
     qint32 state;
-    qint32 pumplvl;
-    qint32 depth;
-    qint32 flow;
-    qint32 fanspeed;
+    double pumplvl;
+    double depth;
+    double flow;
+    double fanspeed;
 } MeasurementData_t;
 
 typedef struct
@@ -64,17 +68,22 @@ public slots:
 private:
     QSerialPort* _port = new QSerialPort();
 
-    QList<Pair_16_t> _msgTx  = { {0, 0}, {100, 100}, {500, 500}, {1000, 1000}, {1024, 1024} };
+    QList<Pair_16_t> _msgTx  = { {0, 0}, {100, 100}, {500, 500}, {1000, 1000}, {0, 1024} };
     QByteArray _msgRx_long;
     MeasurementData_t _data;
 
     qint32 _currState = 0;
-    qint32 _depthLimit = 0;
+    qint32 _depthLimit = 256;   //Equates to ~15m
     qint32 _depthFailCount = 0;
-    qint32 _depth;
-    qint32 _flow;
+
+    qint32 _depth = 0;
+    qint32 _flow = 0;
+    qint32 _depthThen = -1024;
+
+    QFile _file;
 
     bool _dtTimeout;
+
 
     SerComm::Error _errcode = SerComm::Error::NONE;
 };
@@ -109,6 +118,7 @@ private:
 
     QTimer* _iterationTimer = new QTimer();
     QTimer* _depthTimer = new QTimer();
+
 };
 
 #endif // SERIALCOMM_H

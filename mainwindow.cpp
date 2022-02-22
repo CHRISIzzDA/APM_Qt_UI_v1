@@ -10,6 +10,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     //connect(this, &MainWindow::recievedData, usbSettings, &UsbSettings::set_pte_usbdata);
     connect(usbSettings, &UsbSettings::SetPort, this, &MainWindow::setPort);
     connect(_thread, SIGNAL(DataReady()), this, SLOT(DisplayData()));
+    connect(this, &MainWindow::SettingsReady, _thread, &SerialComm::SaveSettings);
 }
 
 MainWindow::~MainWindow()
@@ -26,12 +27,21 @@ void MainWindow::setPort(QString usbtext)
 void MainWindow::DisplayData()
 {
     MeasurementData_t* data = _thread->GetData();
-    ui->pte_Data->insertPlainText("Current State: " + QString::number(data->state) +
-                                  " | Pumplvl: " + QString::number(data->pumplvl, 'f', 2) + "%" +
-                                  " | Depth: " + QString::number(data->depth, 'f', 2) + "m" +
-                                  " | Flow: " + QString::number(data->flow) +
-                                  " | Fanspeed: " + QString::number(data->fanspeed, 'f', 2) + "%" +
-                                  "\t\n");
+    if (data->message == nullptr)
+    {
+        ui->pte_Data->insertPlainText("Time: " + QString(data->time) +
+                                      " | Current State: " + QString::number(data->state) +
+                                      " | Pumplvl: " + QString::number(data->pumplvl, 'f', 2) + "%" +
+                                      " | Depth: " + QString::number(data->depth, 'f', 2) + "m" +
+                                      " | Flow: " + QString::number(data->flow) +
+                                      " | Fanspeed: " + QString::number(data->fanspeed, 'f', 2) + "%" +
+                                      "\t\n");
+
+    }
+    else
+    {
+        ui->pte_Data->insertPlainText(data->message + "\t\n");
+    }
     ui->pte_Data->ensureCursorVisible();
 
     switch (QString::number(data->state).toInt()) {
@@ -91,7 +101,7 @@ void MainWindow::on_pb_usb_settings_clicked()
     usbSettings->setVisible(true);
 }
 
-void MainWindow::on_pushButton_clicked()
+void MainWindow::on_pb_startTest_clicked()
 {
     ui->sw_Test->setCurrentIndex(TSW_RUNNING);
     _thread->StartTest(portname);
@@ -103,3 +113,76 @@ void MainWindow::on_btn_StopTest_clicked()
     ui->pte_Data->clear();
     _thread->StopTest();
 }
+
+void MainWindow::on_pb_file_copy_clicked()
+{
+    const QString srcPath = QFileDialog::getOpenFileName(this, "Source file",
+    "C:/Users/chris/OneDrive - HTL Wien 3 Rennweg/Schule/Schule_5BM/APM/Data_out",
+    "All files (*.*)");
+    if (srcPath.isNull()) // QFileDialog dialogs return null if user canceled
+    {
+        qDebug() << "User cancelled";
+    }
+
+    const QString dstPath = QFileDialog::getSaveFileName(this, "Destination file",
+    "C:/Users/chris/OneDrive - HTL Wien 3 Rennweg/Schule/Schule_5BM/APM/temp/PumpTest.csv",
+    "All files (*.*)"); // it asks the user for overwriting existing files
+    if (dstPath.isNull())
+    {
+        qDebug() << "User cancelled";
+    }
+
+    if (QFile::exists(dstPath))
+    {
+        if (!QFile::remove(dstPath))
+        {
+            qDebug() << "couldn't delete File";
+        }
+    }
+
+    QFile::copy(srcPath, dstPath);
+}
+
+
+void MainWindow::on_sb_measureRate_valueChanged(int arg1)
+{
+    _settings.measureRate = arg1;
+}
+
+
+void MainWindow::on_sb_deltaRate_valueChanged(int arg1)
+{
+    _settings.deltaRate = arg1;
+}
+
+
+void MainWindow::on_sb_stateSwitchTol_valueChanged(int arg1)
+{
+    _settings.stateSwitchTol = arg1;
+}
+
+
+void MainWindow::on_sb_depthLimit_valueChanged(int arg1)
+{
+    _settings.depthLimit = arg1;
+}
+
+
+void MainWindow::on_sb_depthOffset_valueChanged(int arg1)
+{
+    _settings.depthOffset = arg1;
+}
+
+
+void MainWindow::on_sb_flowOffset_valueChanged(int arg1)
+{
+    _settings.flowOffset = arg1;
+}
+
+
+void MainWindow::on_pb_saveSettings_clicked()
+{
+    emit SettingsReady(_settings);
+    ui->sw_main->setCurrentIndex(MSW_HOME);
+}
+

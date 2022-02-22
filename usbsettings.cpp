@@ -23,13 +23,6 @@ QSerialPortInfo UsbSettings::SelectedPort()
     return serialPorts.at(ui->comboBox->currentIndex());
 }
 
-void UsbSettings::set_pte_usbdata(const QByteArray &data)
-{
-    ui->pte_usbdata->insertPlainText(data);
-    c = ui->pte_usbdata->textCursor();
-    c.movePosition(QTextCursor::End);
-    ui->pte_usbdata->setTextCursor(c);
-}
 
 void UsbSettings::timerEvent(QTimerEvent *evt)
 {
@@ -47,19 +40,6 @@ void UsbSettings::timerEvent(QTimerEvent *evt)
     ui->comboBox->setCurrentIndex(ui->comboBox->findText(last));
 }
 
-
-
-
-void UsbSettings::on_pb_status_led_on_clicked()
-{
-    emit SendData("on\n");
-}
-
-
-void UsbSettings::on_pb_status_led_off_clicked()
-{
-    emit SendData("off\n");
-}
 
 void UsbSettings::on_comboBox_activated(int index)
 {

@@ -402,6 +402,9 @@
               <property name="buttonSymbols">
                <enum>QAbstractSpinBox::PlusMinus</enum>
               </property>
+              <property name="minimum">
+               <number>-9999</number>
+              </property>
               <property name="maximum">
                <number>9999</number>
               </property>
@@ -529,6 +532,9 @@
               </property>
               <property name="showGroupSeparator" stdset="0">
                <bool>false</bool>
+              </property>
+              <property name="minimum">
+               <number>-9999</number>
               </property>
               <property name="maximum">
                <number>9999</number>

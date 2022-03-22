@@ -237,6 +237,15 @@ void SerialComm::StartTest(QString portName)
 
 void SerialComm::StopTest()
 {
+    QString query =
+            QString("0") +
+            ";" +
+            "0" +
+            "\n";
+
+    _worker->Port()->write(query.toLocal8Bit());
+
+
     _worker->Port()->close();
     qDebug() << "stop";
     _thread->quit();

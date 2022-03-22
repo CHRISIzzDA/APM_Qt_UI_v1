@@ -79,6 +79,8 @@ void MainWindow::on_pb_back_settings_clicked()
 void MainWindow::on_pb_start_clicked()
 {
     ui->sw_main->setCurrentIndex(MSW_TEST);
+    ui->sw_Test->setCurrentIndex(TSW_RUNNING);
+    _thread->StartTest(portname);
 }
 
 void MainWindow::on_pb_back_start_clicked()
@@ -88,7 +90,34 @@ void MainWindow::on_pb_back_start_clicked()
 
 void MainWindow::on_pb_files_clicked()
 {
-    ui->sw_main->setCurrentIndex(MSW_FILES);
+    //ui->sw_main->setCurrentIndex(MSW_FILES);
+
+    const QString srcPath = QFileDialog::getOpenFileName(this, "Source file",
+    "C:/Users/chris/OneDrive - HTL Wien 3 Rennweg/Schule/Schule_5BM/APM/Data_out", //Windows: C:/Users/chris/OneDrive - HTL Wien 3 Rennweg/Schule/Schule_5BM/APM/Data_out  //Raspi:/home/pi/Documents/Data_out/Pumptest.csv
+    "All files (*.*)");
+    if (srcPath.isNull()) // QFileDialog dialogs return null if user canceled
+    {
+        qDebug() << "User cancelled";
+    }
+
+    const QString dstPath = QFileDialog::getSaveFileName(this, "Destination file",
+    "C:/Users/chris/OneDrive - HTL Wien 3 Rennweg/Schule/Schule_5BM/APM/temp/PumpTest.csv", //Windows: C:/Users/chris/OneDrive - HTL Wien 3 Rennweg/Schule/Schule_5BM/APM/temp/PumpTest.csv Raspi: /media/pi/PumpTest.csv
+    "All files (*.*)"); // it asks the user for overwriting existing files
+    if (dstPath.isNull())
+    {
+        qDebug() << "User cancelled";
+    }
+
+    if (QFile::exists(dstPath))
+    {
+        if (!QFile::remove(dstPath))
+        {
+            qDebug() << "couldn't delete File";
+        }
+    }
+
+    QFile::copy(srcPath, dstPath);
+
 }
 
 void MainWindow::on_pb_back_files_clicked()
@@ -110,6 +139,7 @@ void MainWindow::on_pb_startTest_clicked()
 void MainWindow::on_btn_StopTest_clicked()
 {
     ui->sw_Test->setCurrentIndex(MSW_HOME);
+    ui->sw_main->setCurrentIndex(MSW_HOME);
     ui->pte_Data->clear();
     _thread->StopTest();
 }
@@ -117,7 +147,7 @@ void MainWindow::on_btn_StopTest_clicked()
 void MainWindow::on_pb_file_copy_clicked()
 {
     const QString srcPath = QFileDialog::getOpenFileName(this, "Source file",
-    "C:/Users/chris/OneDrive - HTL Wien 3 Rennweg/Schule/Schule_5BM/APM/Data_out",
+    "C:/Users/chris/OneDrive - HTL Wien 3 Rennweg/Schule/Schule_5BM/APM/Data_out", //Windows: C:/Users/chris/OneDrive - HTL Wien 3 Rennweg/Schule/Schule_5BM/APM/Data_out  //Raspi:/home/pi/Documents/Data_out/Pumptest.csv
     "All files (*.*)");
     if (srcPath.isNull()) // QFileDialog dialogs return null if user canceled
     {
@@ -125,7 +155,7 @@ void MainWindow::on_pb_file_copy_clicked()
     }
 
     const QString dstPath = QFileDialog::getSaveFileName(this, "Destination file",
-    "C:/Users/chris/OneDrive - HTL Wien 3 Rennweg/Schule/Schule_5BM/APM/temp/PumpTest.csv",
+    "C:/Users/chris/OneDrive - HTL Wien 3 Rennweg/Schule/Schule_5BM/APM/temp/PumpTest.csv", //Windows: C:/Users/chris/OneDrive - HTL Wien 3 Rennweg/Schule/Schule_5BM/APM/temp/PumpTest.csv Raspi: /media/pi/PumpTest.csv
     "All files (*.*)"); // it asks the user for overwriting existing files
     if (dstPath.isNull())
     {

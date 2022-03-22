@@ -85,7 +85,7 @@ public slots:
 private:
     QSerialPort* _port = new QSerialPort();
 
-    QList<Pair_16_t> _msgTx  = { {0, 0}, {100, 100}, {500, 500}, {1000, 1000}, {0, 1024} };
+    QList<Pair_16_t> _msgTx  = { {0, 0}, {100, 100}, {500, 500}, {900, 900}, {0, 1024} };
     QByteArray _msgRx_long;
     MeasurementData_t _data;
     Settings_t _settings;

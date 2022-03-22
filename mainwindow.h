@@ -76,7 +76,7 @@ private:
 
     Settings_t _settings = {1000, 3000, 256, 17, 0, 0};
 
-    QString portname = "COM3";
+    QString portname = "COM3"; //Windows: COM3 //Raspi: ttyACM0
 
     enum MainStackedWidget { MSW_HOME, MSW_SETTINGS, MSW_TEST, MSW_FILES };
     enum TestStackedWidget { TSW_MENU, TSW_RUNNING };
